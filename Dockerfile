@@ -1,1 +1,1 @@
-FROM node:15-alpine
+FROM alpine:latest

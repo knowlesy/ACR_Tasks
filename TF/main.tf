@@ -82,6 +82,11 @@ resource "azurerm_container_registry_task" "acr" {
     dockerfile_path      = "Dockerfile"
     context_path         = "https://github.com/knowlesy/ACR_Tasks.git"
     context_access_token = azurerm_key_vault_secret.github_token.value
-    
+    image_names          = ["alpine:{{.Run.ID}}"]
+  }
+  #UTC Time! 
+  timer_trigger{
+    schedule = "20 21 * * *"
+    name = "daily-pull-task"
   }
 }
