@@ -31,6 +31,8 @@ Initialize TF Code
 
 Plan TF Code have your pat token ready [help on pat tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
 
+You could also switch the github link to a storage account and SAS token as an alternative. 
+
     terraform plan -out main.tfplan
 
 You will be prompted for your token 
