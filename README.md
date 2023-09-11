@@ -86,3 +86,4 @@ References below have helped in making this example
 * [Docker Hub Account](https://docs.docker.com/docker-hub/download-rate-limit/#how-do-i-authenticate-pull-requests)
 * [Docker API Tokens](https://docs.docker.com/docker-hub/access-tokens/)
 * [ACR Sku's](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-skus)
+* [ACR Import Container Images](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-import-images?tabs=azure-cli)
