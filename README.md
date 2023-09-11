@@ -1,81 +1,94 @@
-# ADO Pipeline to Create a Container image
-Azure Devops Container Build Pipeline
+# Azure Container Repository Scheduled Tasks
 
-ADO = Azure Devops
+This will show you how to get a scheduled azure container  task that will build an image in this particular case just Alpine at a scheduled time and store it in the ACR. This has a variety of benefits for example say if your wanting upgrades to your layers. 
+
+Another option If you have links to base images this could be useful as refence or if your wanting an import you could just use the acr import commands within a pipeline or look at encoded script block. 
 
 This is a lab only !
 
 ## Pre-Req's
 
-* Azure Devops Organization and Project for testing
 * terraform installed locally
 * VSCode with TF Extension and Git
 * AZ Cli or AZ PS Module 
 * Azure Environment 
-* Docker Hub account and API token 
-* Azure Service Principle created  and set up in Azure devops [guide](https://learn.microsoft.com/en-us/azure/devops/integrate/get-started/authentication/service-principal-managed-identity?view=azure-devops) , [alt guide](https://learn.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli)
+* Github account with PAT Token
+
 
 ## Instructions
 
-Git clone in VS Code and cd into the TF folder then run through the motions
+Git clone in VS Code and modify the cron job to a more specific time closer to you, remember this will be executed in UTC Time. The following can help [crontab guru](https://crontab.guru/)
 
-Import the repo into your test project in ADO
-
-
-
-
-
-In your VSCode Terminal 
+in your terminal cd into the TF folder then run through following prompts 
 
 Log in to azure [AZ CLI](https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli) or [Powershell](https://learn.microsoft.com/en-us/powershell/azure/authenticate-azureps?view=azps-10.1.0)
+
+    az login --t "XYZ"
 
 Initialize TF Code
 
     terraform init -upgrade
 
-Plan TF Code
+Plan TF Code have your pat token ready [help on pat tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
 
     terraform plan -out main.tfplan
+
+You will be prompted for your token 
+
+![image](https://github.com/knowlesy/ACR_Tasks/assets/20459678/d2ddeefe-27f5-4efa-b6b1-579f6ff07fd3)
+
+NOTE: This isnt stored securely as this is a LAB!
 
 Apply TF Code
 
     terraform apply main.tfplan
 
+Any of the code below will rely on the following variable run this after your tf apply
 
-Once this has run add your SPN as a contributor to the ACR
+     $registry = (terraform output -raw acr_login).replace(".azurecr.io","")
 
-In ADO under your project go to project settings > service connections > new service connection > docker registry > next
+Your Key vault and Azure Container Registry will be created 
 
-Click Azure Container Reg... set to Service Principle Click Add 
+![image](https://github.com/knowlesy/ACR_Tasks/assets/20459678/90383577-af20-4ea2-8658-bca50223689e)
+
+Check your tasks 
+
+![image](https://github.com/knowlesy/ACR_Tasks/assets/20459678/563ce869-5cd3-467d-a362-5539a4dc6c67)
+
+Or Run the following 
+
+    az acr task show -n daily-pull-task -r $registry -o table
+
+![image](https://github.com/knowlesy/ACR_Tasks/assets/20459678/4f15a6b0-8db4-43b3-bfcd-5ed6ac08f3af)
+
+Some additional scripts to run and brows your repository
+
+    #lists the timer for the task (if applicable
+	az acr task timer list -n daily-pull-task -r $registry
+
+    #forces the task manually	  
+    az acr task run -n daily-pull-task -r $registry
+  
+    #Shows Logs 
+    az acr task logs -r $registry
+    #Lists runs executed 
+    az acr task list-runs -r $registry -o table
+    az acr repository list --name  $registry --output table
+  
+    #By tag name  
+    az acr repository show-tags -n $registry --repository alpine --orderby time_desc --output table
+
+Repositorys
+
+![image](https://github.com/knowlesy/ACR_Tasks/assets/20459678/7dd05570-85e8-445a-a12b-529b96cade13)
 
 
-
-
-
-
-
-
-In Azure portal or via your connection to Azure run thr following AZ Cli command to see the images stored in the repository
-
-    az acr repository list --name <acrName> --output table
-
-To get a list of the versions run the following substituting reponame for your image name / build shown in the previous step
-
-    az acr repository show-tags -n <RegistryName> --repository <reponame> --orderby time_desc --output table
-
-
-DESTROY!!!!!!!!!!!!!
+Tear down the env 
 
     terraform plan -destroy -out main.destroy.tfplan
     terraform apply "main.destroy.tfplan"
 
 References below have helped in making this example 
-* [TF Azure Container Registry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry)
-* [Microsoft PS Container](https://hub.docker.com/_/microsoft-powershell)
-* [Azure Container Registry Tiers](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-skus)
-* [Building in ADO](https://learn.microsoft.com/en-us/azure/devops/pipelines/ecosystems/containers/build-image?view=azure-devops)
-* [Docker task commands](https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/docker-v2?view=azure-pipelines&tabs=yaml)
-* [ADO Service Connections](https://learn.microsoft.com/en-us/azure/devops/pipelines/library/service-endpoints?view=azure-devops&tabs=yaml#docker-registry-service-connection)
 * [How to consume and maintain public content with Azure Container Registry Tasks](https://learn.microsoft.com/en-us/azure/container-registry/tasks-consume-public-content)
 * [Automate container image builds and maintenance with ACR Tasks](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-tasks-overview)
 * [Consuming Public Content](https://opencontainers.org/posts/blog/2020-10-30-consuming-public-content/)
@@ -87,3 +100,4 @@ References below have helped in making this example
 * [Docker API Tokens](https://docs.docker.com/docker-hub/access-tokens/)
 * [ACR Sku's](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-skus)
 * [ACR Import Container Images](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-import-images?tabs=azure-cli)
+  
