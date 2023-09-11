@@ -9,16 +9,6 @@ variable "resource_group_location" {
   description = "Location of the resource group."
 }
 
-# variable "docker_username" {
-#   description = "Docker Username"
-#   type = string 
-# }
-
-# variable "docker_password" {
-#   description = "Docker Password"
-#   type = string 
-# }
-
 variable "github_token" {
   description = "GitHub Token"
   type = string 

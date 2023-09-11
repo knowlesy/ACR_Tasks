@@ -51,20 +51,6 @@ resource "azurerm_key_vault" "vault" {
   }
 }
 
-# resource "azurerm_key_vault_secret" "docker_pas" {
-#   name         = "dockerPassword"
-#   value        = var.docker_password
-#   key_vault_id = azurerm_key_vault.vault.id
-#   depends_on   = [azurerm_key_vault.vault]
-# }
-
-# resource "azurerm_key_vault_secret" "docker_usr" {
-#   name         = "dockerUser"
-#   value        = var.docker_username
-#   key_vault_id = azurerm_key_vault.vault.id
-#   depends_on   = [azurerm_key_vault.vault]
-# }
-
 resource "azurerm_key_vault_secret" "github_token" {
   name         = "githubtoken"
   value        = var.github_token
