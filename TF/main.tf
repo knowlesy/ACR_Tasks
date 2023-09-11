@@ -51,19 +51,19 @@ resource "azurerm_key_vault" "vault" {
   }
 }
 
-resource "azurerm_key_vault_secret" "docker_pas" {
-  name         = "dockerPassword"
-  value        = var.docker_password
-  key_vault_id = azurerm_key_vault.vault.id
-  depends_on   = [azurerm_key_vault.vault]
-}
+# resource "azurerm_key_vault_secret" "docker_pas" {
+#   name         = "dockerPassword"
+#   value        = var.docker_password
+#   key_vault_id = azurerm_key_vault.vault.id
+#   depends_on   = [azurerm_key_vault.vault]
+# }
 
-resource "azurerm_key_vault_secret" "docker_usr" {
-  name         = "dockerUser"
-  value        = var.docker_username
-  key_vault_id = azurerm_key_vault.vault.id
-  depends_on   = [azurerm_key_vault.vault]
-}
+# resource "azurerm_key_vault_secret" "docker_usr" {
+#   name         = "dockerUser"
+#   value        = var.docker_username
+#   key_vault_id = azurerm_key_vault.vault.id
+#   depends_on   = [azurerm_key_vault.vault]
+# }
 
 resource "azurerm_key_vault_secret" "github_token" {
   name         = "githubtoken"
@@ -80,8 +80,8 @@ resource "azurerm_container_registry_task" "acr" {
   }
   docker_step {
     dockerfile_path      = "Dockerfile"
-    context_path         = "https://github.com/<username>/<repository>#<branch>:<folder>"
-    context_access_token = "<github personal access token>"
-    image_names          = ["helloworld:{{.Run.ID}}"]
+    context_path         = "https://github.com/knowlesy/ACR_Tasks.git"
+    context_access_token = azurerm_key_vault_secret.github_token.value
+    
   }
 }
